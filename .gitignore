@@ -35,11 +35,11 @@ yarn-error.log*
 !.env.example
 
 # database files
-*.db
+# *.db  <- Commented out to include database in deployment
 *.db-journal
 *.db-shm
 *.db-wal
-/data/*.db
+# /data/*.db  <- Commented out to include database in deployment
 /data/*.csv
 
 # vercel
