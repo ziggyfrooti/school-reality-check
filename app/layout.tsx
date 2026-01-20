@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
 import { AuthProvider } from "@/lib/firebase/AuthContext";
+import { ComparisonProvider } from "@/lib/context/ComparisonContext";
 import UserMenu from "./components/UserMenu";
+import ComparisonBadge from "./components/ComparisonBadge";
 
 export const metadata: Metadata = {
   title: "School Reality Check | Compare Central Ohio School Districts",
@@ -18,7 +20,8 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased bg-slate-50 text-slate-900">
         <AuthProvider>
-        <nav className="border-b border-slate-200 bg-white">
+          <ComparisonProvider>
+            <nav className="border-b border-slate-200 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <Link href="/" className="flex items-center space-x-2">
@@ -41,6 +44,7 @@ export default function RootLayout({
         <main className="min-h-screen">
           {children}
         </main>
+        <ComparisonBadge />
         <footer className="border-t border-slate-200 bg-white mt-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-sm text-slate-500 space-y-2">
@@ -59,6 +63,7 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+          </ComparisonProvider>
         </AuthProvider>
       </body>
     </html>

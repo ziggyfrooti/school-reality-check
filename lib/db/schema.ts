@@ -20,6 +20,12 @@ export const districts = sqliteTable('districts', {
   instructionExpenditure: integer('instruction_expenditure'),
   perPupilExpenditure: integer('per_pupil_expenditure'),
   pctFromLocalTax: real('pct_from_local_tax'),
+  // Ohio Report Card data
+  overallRating: integer('overall_rating'),
+  achievementScore: real('achievement_score'),
+  graduationRate4yr: real('graduation_rate_4yr'),
+  mathProficiency: real('math_proficiency'),
+  readingProficiency: real('reading_proficiency'),
 });
 
 // Schools table - Basic school information
@@ -50,6 +56,8 @@ export const schoolEnrollment = sqliteTable('school_enrollment', {
   pctHispanic: real('pct_hispanic'),
   pctAsian: real('pct_asian'),
   pctOther: real('pct_other'),
+  pctFrl: real('pct_frl'),
+  studentTeacherRatio: real('student_teacher_ratio'),
 });
 
 // School achievement - Test scores and performance
