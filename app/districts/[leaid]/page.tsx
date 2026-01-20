@@ -92,7 +92,7 @@ export default async function DistrictPage({
           <div>
             <h1 className="text-4xl font-bold text-slate-900">{district.name}</h1>
             <p className="text-slate-600 mt-1">
-              Browse all {schools.length} schools and add up to 3 to compare side-by-side
+              Browse all {schools.length} schools and add up to 4 to compare side-by-side
             </p>
           </div>
         </div>
@@ -140,9 +140,9 @@ export default async function DistrictPage({
             <h3 className="font-semibold text-blue-900 mb-1">How to Use This Page:</h3>
             <ol className="text-sm text-blue-800 space-y-1">
               <li>1. Use the filters below to find schools by grade level (Elementary, Middle, High)</li>
-              <li>2. Click <strong>"+ Add to Compare"</strong> on schools you're interested in (max 3)</li>
-              <li>3. Once you've added 2-3 schools, click the blue button in the bottom-right corner</li>
-              <li>4. See your schools side-by-side with property tax estimates for each area!</li>
+              <li>2. Click <strong>"+ Add to Compare"</strong> on schools you're interested in (max 4)</li>
+              <li>3. Once you've added 2-4 schools, click the blue button in the bottom-right corner</li>
+              <li>4. See your schools side-by-side with detailed stats and property tax estimates!</li>
             </ol>
           </div>
         </div>

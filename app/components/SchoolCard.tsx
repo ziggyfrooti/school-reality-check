@@ -115,6 +115,9 @@ export default function SchoolCard({ school, district, enrollment }: SchoolCardP
                 <div className="text-lg font-semibold text-slate-900">
                   {enrollment.pctFrl.toFixed(1)}%
                 </div>
+                <div className="text-xs text-slate-500 mt-0.5">
+                  {enrollment.pctFrl < 10 ? 'Affluent' : enrollment.pctFrl < 25 ? 'Mixed' : 'Higher need'}
+                </div>
               </div>
             )}
             <div>

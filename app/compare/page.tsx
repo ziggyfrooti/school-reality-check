@@ -4,13 +4,66 @@ import { useComparison } from '@/lib/context/ComparisonContext';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
+interface EnrollmentData {
+  totalStudents: number | null;
+  studentTeacherRatio: number | null;
+  pctFrl: number | null;
+  pctWhite: number | null;
+  pctBlack: number | null;
+  pctHispanic: number | null;
+  pctAsian: number | null;
+  pctOther: number | null;
+}
+
+interface DistrictData {
+  perPupilExpenditure: number | null;
+}
+
+interface SchoolData {
+  enrollment: EnrollmentData | null;
+  district: DistrictData | null;
+}
+
 export default function ComparePage() {
   const { comparisonSchools, removeFromComparison, clearComparison } = useComparison();
   const [mounted, setMounted] = useState(false);
+  const [schoolData, setSchoolData] = useState<Record<string, SchoolData>>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Fetch detailed data for all comparison schools
+  useEffect(() => {
+    if (comparisonSchools.length === 0) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchSchoolData = async () => {
+      setLoading(true);
+      const data: Record<string, SchoolData> = {};
+
+      for (const school of comparisonSchools) {
+        try {
+          const response = await fetch(`/api/schools/${school.ncessch}`);
+          if (response.ok) {
+            const schoolDetails = await response.json();
+            data[school.ncessch] = schoolDetails;
+          }
+        } catch (error) {
+          console.error(`Failed to fetch data for ${school.ncessch}:`, error);
+          data[school.ncessch] = { enrollment: null, district: null };
+        }
+      }
+
+      setSchoolData(data);
+      setLoading(false);
+    };
+
+    fetchSchoolData();
+  }, [comparisonSchools]);
 
   if (!mounted) {
     return null; // Avoid hydration mismatch
@@ -77,10 +130,10 @@ export default function ComparePage() {
         </div>
 
         {/* Add More Schools Tip */}
-        {comparisonSchools.length < 3 && (
+        {comparisonSchools.length < 4 && (
           <div className="bg-blue-50 border-l-4 border-blue-600 p-4">
             <p className="text-sm text-blue-800">
-              💡 You can add up to {3 - comparisonSchools.length} more {comparisonSchools.length === 2 ? 'school' : 'schools'}.
+              💡 You can add up to {4 - comparisonSchools.length} more {comparisonSchools.length === 3 ? 'school' : 'schools'}.
               <Link href="/districts/3904676" className="underline ml-2 font-medium">Browse Olentangy</Link> or
               <Link href="/districts/3904702" className="underline ml-2 font-medium">Browse Dublin</Link>
             </p>
@@ -89,9 +142,16 @@ export default function ComparePage() {
       </div>
 
       {/* Comparison Grid */}
-      <div className={`grid gap-6 mb-12 ${comparisonSchools.length === 2 ? 'md:grid-cols-2' : comparisonSchools.length === 3 ? 'md:grid-cols-3' : ''}`}>
+      <div className={`grid gap-6 mb-12 ${
+        comparisonSchools.length === 2 ? 'md:grid-cols-2' :
+        comparisonSchools.length === 3 ? 'md:grid-cols-3' :
+        comparisonSchools.length === 4 ? 'md:grid-cols-4' : ''
+      }`}>
         {comparisonSchools.map((school) => {
           const isOlentangy = school.leaid === '3904676';
+          const data = schoolData[school.ncessch];
+          const enrollment = data?.enrollment;
+          const district = data?.district;
 
           // Estimate property tax based on city
           let taxEstimate = '~$4,200-4,400';
@@ -165,6 +225,108 @@ export default function ComparePage() {
                     {school.gradesLow} - {school.gradesHigh}
                   </div>
                   <div className="text-xs text-slate-500 mt-1">{school.schoolType}</div>
+                </div>
+              )}
+
+              {/* School Size & Class Size */}
+              {loading ? (
+                <div className="bg-blue-50 rounded-lg p-4 mb-4 animate-pulse">
+                  <div className="h-4 bg-blue-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-6 bg-blue-200 rounded w-1/2"></div>
+                </div>
+              ) : enrollment && (
+                <div className="bg-blue-50 rounded-lg p-4 mb-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    {enrollment.totalStudents && (
+                      <div>
+                        <div className="text-xs text-blue-900 uppercase font-medium mb-1">
+                          Total Students
+                        </div>
+                        <div className="text-2xl font-bold text-blue-950">
+                          {enrollment.totalStudents.toLocaleString()}
+                        </div>
+                      </div>
+                    )}
+                    {enrollment.studentTeacherRatio && (
+                      <div>
+                        <div className="text-xs text-blue-900 uppercase font-medium mb-1">
+                          Student:Teacher
+                        </div>
+                        <div className="text-2xl font-bold text-blue-950">
+                          {enrollment.studentTeacherRatio.toFixed(1)}:1
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Diversity */}
+              {!loading && enrollment && (enrollment.pctWhite || enrollment.pctBlack || enrollment.pctHispanic || enrollment.pctAsian) && (
+                <div className="bg-purple-50 rounded-lg p-4 mb-4">
+                  <div className="text-xs text-purple-900 uppercase font-medium mb-2">
+                    Student Diversity
+                  </div>
+                  <div className="space-y-1 text-sm">
+                    {enrollment.pctWhite !== null && (
+                      <div className="flex justify-between">
+                        <span className="text-purple-800">White</span>
+                        <span className="font-semibold text-purple-950">{enrollment.pctWhite.toFixed(1)}%</span>
+                      </div>
+                    )}
+                    {enrollment.pctAsian !== null && (
+                      <div className="flex justify-between">
+                        <span className="text-purple-800">Asian</span>
+                        <span className="font-semibold text-purple-950">{enrollment.pctAsian.toFixed(1)}%</span>
+                      </div>
+                    )}
+                    {enrollment.pctHispanic !== null && (
+                      <div className="flex justify-between">
+                        <span className="text-purple-800">Hispanic</span>
+                        <span className="font-semibold text-purple-950">{enrollment.pctHispanic.toFixed(1)}%</span>
+                      </div>
+                    )}
+                    {enrollment.pctBlack !== null && (
+                      <div className="flex justify-between">
+                        <span className="text-purple-800">Black</span>
+                        <span className="font-semibold text-purple-950">{enrollment.pctBlack.toFixed(1)}%</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Economic Demographics */}
+              {!loading && enrollment && enrollment.pctFrl !== null && enrollment.pctFrl !== undefined && (
+                <div className="bg-green-50 rounded-lg p-4 mb-4">
+                  <div className="text-xs text-green-900 uppercase font-medium mb-1">
+                    Free/Reduced Lunch
+                  </div>
+                  <div className="text-2xl font-bold text-green-950">
+                    {enrollment.pctFrl.toFixed(1)}%
+                  </div>
+                  <div className="text-xs text-green-700 mt-1">
+                    {enrollment.pctFrl < 10
+                      ? 'Very affluent area - mostly high-income families'
+                      : enrollment.pctFrl < 25
+                      ? 'Mixed-income community'
+                      : 'Higher proportion of lower-income families'}
+                  </div>
+                </div>
+              )}
+
+              {/* Per-Pupil Spending */}
+              {!loading && district?.perPupilExpenditure && (
+                <div className="bg-indigo-50 rounded-lg p-4 mb-4">
+                  <div className="text-xs text-indigo-900 uppercase font-medium mb-1">
+                    Per-Pupil Spending
+                  </div>
+                  <div className="text-2xl font-bold text-indigo-950">
+                    ${district.perPupilExpenditure.toLocaleString()}
+                  </div>
+                  <div className="text-xs text-indigo-700 mt-1">
+                    District average (2023-24)
+                  </div>
                 </div>
               )}
 

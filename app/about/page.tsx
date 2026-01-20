@@ -20,10 +20,20 @@ export default function AboutPage() {
       <div className="bg-white rounded-lg border border-slate-200 p-8 mb-8">
         <h2 className="text-2xl font-bold text-slate-900 mb-4">What This Tool Does</h2>
         <p className="text-slate-700 mb-4">
-          School Reality Check is a free, independent tool that helps homebuyers compare Central Ohio school districts using official public data. Unlike rating sites that rely on subjective reviews or proprietary scoring, we show you the raw numbers from government sources so you can make your own decisions.
+          School Reality Check helps families compare individual schools within Olentangy and Dublin school districts - two of Ohio's top-rated districts. The unique insight? <strong>Property taxes can vary by $1,500-2,000/year even within the same excellent school district</strong>, depending on which city or township you choose.
         </p>
+        <p className="text-slate-700 mb-4">
+          Unlike typical real estate searches (pick budget → realtor shows houses in that budget), this tool lets you:
+        </p>
+        <ul className="list-disc list-inside space-y-2 text-slate-700 mb-4 ml-4">
+          <li>Browse schools by grade level (Elementary, Middle, High)</li>
+          <li>Compare up to 4 schools side-by-side</li>
+          <li>See detailed metrics: enrollment size, student-teacher ratio, diversity, economic demographics</li>
+          <li>View property tax estimates specific to each school's location</li>
+          <li>Calculate potential savings over 18 years (K-12)</li>
+        </ul>
         <p className="text-slate-700">
-          Our goal is simple: make school district comparison transparent, data-driven, and useful for the biggest decision many families make — where to buy a home.
+          <strong>Bottom line:</strong> Both districts are 5-star rated with excellent academics. The real difference is location and cost. This tool makes that transparent.
         </p>
       </div>
 
@@ -35,20 +45,30 @@ export default function AboutPage() {
           <div>
             <h3 className="font-semibold text-slate-900 mb-2">NCES Common Core of Data (CCD)</h3>
             <p className="text-sm text-slate-600 mb-2">
-              School year 2023-24. The nation's primary database on public elementary and secondary education.
+              School year 2024-25. The nation's primary database on public elementary and secondary education.
             </p>
             <p className="text-sm text-slate-600">
-              <span className="font-medium">What we extract:</span> School names, addresses, grade levels, enrollment counts, demographic breakdowns (race/ethnicity).
+              <span className="font-medium">What we extract:</span> School names, addresses, grade levels, enrollment counts, student-teacher ratios, demographic breakdowns (race/ethnicity), Free/Reduced Lunch percentages.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-slate-900 mb-2">Ohio School Report Cards</h3>
+            <p className="text-sm text-slate-600 mb-2">
+              School year 2024-25. Official performance ratings from the Ohio Department of Education.
+            </p>
+            <p className="text-sm text-slate-600">
+              <span className="font-medium">What we show:</span> Overall district ratings (5-star system), achievement scores, graduation rates, math/reading proficiency.
             </p>
           </div>
 
           <div>
             <h3 className="font-semibold text-slate-900 mb-2">F-33 School District Finance Survey</h3>
             <p className="text-sm text-slate-600 mb-2">
-              Fiscal year 2021-22 (most recent available). Annual financial data from all public school districts.
+              Fiscal year 2022 (most recent available). Annual financial data from all public school districts.
             </p>
             <p className="text-sm text-slate-600">
-              <span className="font-medium">What we extract:</span> Total revenue, revenue sources (local/state/federal), total expenditures, instructional spending, per-pupil expenditure.
+              <span className="font-medium">What we extract:</span> Per-pupil expenditure, total revenue, revenue sources (local/state/federal), total expenditures.
             </p>
           </div>
 
@@ -58,22 +78,23 @@ export default function AboutPage() {
               Delaware and Franklin County Auditor offices, effective rates as of 2024.
             </p>
             <p className="text-sm text-slate-600">
-              <span className="font-medium">What we show:</span> Effective millage rates (after House Bill 920 reductions), estimated annual taxes on a $300k home.
+              <span className="font-medium">What we show:</span> Estimated annual property taxes on a $600k home, broken down by city/township within each district.
             </p>
           </div>
         </div>
       </div>
 
-      {/* What We Don't Show Yet */}
+      {/* Key Features */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 mb-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">Coming Soon</h2>
-        <p className="text-slate-700 mb-4">We're actively working to add:</p>
+        <h2 className="text-2xl font-bold text-slate-900 mb-4">What You Can Compare</h2>
+        <p className="text-slate-700 mb-4">For each school, you can see:</p>
         <ul className="list-disc list-inside space-y-2 text-slate-700">
-          <li><span className="font-medium">Test scores and performance ratings</span> from state report cards</li>
-          <li><span className="font-medium">Graduation rates</span> (4-year and 5-year cohorts)</li>
-          <li><span className="font-medium">Student-teacher ratios</span> at the school level</li>
-          <li><span className="font-medium">Free/reduced lunch percentages</span> as a proxy for household income</li>
-          <li><span className="font-medium">AP/IB course offerings</span> and college readiness metrics</li>
+          <li><span className="font-medium">School Size:</span> Total student enrollment</li>
+          <li><span className="font-medium">Class Size:</span> Student-teacher ratio (lower is better for individualized attention)</li>
+          <li><span className="font-medium">Student Diversity:</span> Racial/ethnic breakdown percentages</li>
+          <li><span className="font-medium">Economic Demographics:</span> Free/Reduced Lunch % (affluent vs. mixed-income communities)</li>
+          <li><span className="font-medium">Per-Pupil Spending:</span> District-level average spending per student</li>
+          <li><span className="font-medium">Property Tax Estimates:</span> Annual cost for a $600k home, specific to each school's location</li>
         </ul>
       </div>
 
@@ -100,13 +121,16 @@ export default function AboutPage() {
       <div className="bg-white rounded-lg border border-slate-200 p-8 mb-8">
         <h2 className="text-2xl font-bold text-slate-900 mb-4">Why We Built This</h2>
         <p className="text-slate-700 mb-4">
-          When buying a home, school district is often the deciding factor. But the data is scattered across dozens of websites, PDFs, and state portals. Rating sites use opaque formulas. District websites bury financial information.
+          When searching for a home, realtors typically ask: "What's your budget?" Then they show you houses in that price range. But here's what they don't always highlight: <strong>property taxes within the same school district can vary significantly by city and township.</strong>
         </p>
         <p className="text-slate-700 mb-4">
-          We wanted something simple: show the official numbers, cite the sources, explain the limitations, and let families decide for themselves.
+          Both Olentangy and Dublin are 5-star rated districts with excellent academics. The quality difference between individual schools is minimal. <strong>The real difference is location and annual cost.</strong> Why pay $7,200/year in property taxes when you could pay $5,800/year and send your kids to an equally excellent school?
+        </p>
+        <p className="text-slate-700 mb-4">
+          This tool was built by a family going through this exact decision. We wanted to see all our options side-by-side: school quality, class sizes, diversity, and - most importantly - the actual long-term cost of each location.
         </p>
         <p className="text-slate-700">
-          This is an independent, volunteer project. We have no affiliation with any school district, real estate company, or government agency. All data is publicly available, and we cite our sources.
+          This is an independent tool using only publicly available data. We have no affiliation with any school district, real estate company, or government agency.
         </p>
       </div>
 

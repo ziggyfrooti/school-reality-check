@@ -28,7 +28,7 @@ interface ComparisonContextType {
 
 const ComparisonContext = createContext<ComparisonContextType | undefined>(undefined);
 
-const MAX_COMPARISON_SCHOOLS = 3;
+const MAX_COMPARISON_SCHOOLS = 4;
 
 export function ComparisonProvider({ children }: { children: React.ReactNode }) {
   const [comparisonSchools, setComparisonSchools] = useState<School[]>([]);
