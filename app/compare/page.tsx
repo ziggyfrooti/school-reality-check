@@ -51,6 +51,9 @@ export default function ComparePage() {
           if (response.ok) {
             const schoolDetails = await response.json();
             data[school.ncessch] = schoolDetails;
+          } else {
+            console.error(`API returned ${response.status} for ${school.ncessch}`);
+            data[school.ncessch] = { enrollment: null, district: null };
           }
         } catch (error) {
           console.error(`Failed to fetch data for ${school.ncessch}:`, error);
@@ -248,6 +251,12 @@ export default function ComparePage() {
                 <div className="bg-blue-50 rounded-lg p-4 mb-4 animate-pulse">
                   <div className="h-4 bg-blue-200 rounded w-3/4 mb-2"></div>
                   <div className="h-6 bg-blue-200 rounded w-1/2"></div>
+                </div>
+              ) : !enrollment ? (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                  <p className="text-sm text-yellow-800">
+                    ⚠️ Detailed metrics not available. Check browser console for errors.
+                  </p>
                 </div>
               ) : enrollment && (
                 <div className="bg-blue-50 rounded-lg p-4 mb-4">
