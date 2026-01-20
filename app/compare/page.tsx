@@ -139,6 +139,21 @@ export default function ComparePage() {
             </p>
           </div>
         )}
+
+        {/* Understanding the Metrics */}
+        <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 mt-4">
+          <h3 className="font-semibold text-slate-900 mb-3">📊 Understanding the Metrics</h3>
+          <div className="grid md:grid-cols-2 gap-4 text-sm text-slate-700">
+            <div>
+              <span className="font-medium text-slate-900">Free/Reduced Lunch %:</span> Percentage of students whose families qualify for subsidized meals based on income.
+              <strong className="text-slate-900"> Lower % = more affluent area.</strong> For example, 1-5% means almost all families are high-income, while 40%+ indicates many lower-income families.
+            </div>
+            <div>
+              <span className="font-medium text-slate-900">Student:Teacher Ratio:</span> Number of students per teacher.
+              <strong className="text-slate-900"> Lower ratio = smaller class sizes</strong> and typically more individualized attention for each student.
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Comparison Grid */}
