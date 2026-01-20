@@ -1,32 +1,41 @@
 import { db } from '@/lib/db/client';
 import * as schema from '@/lib/db/schema';
-import { eq, count } from 'drizzle-orm';
-import FlipCard from './components/FlipCard';
+import { eq } from 'drizzle-orm';
+import EnhancedFlipCard from './components/EnhancedFlipCard';
+import NewLandingPage from './components/NewLandingPage';
 import HomePageWrapper from './components/HomePageWrapper';
+import districtFeatures from '@/data/district-features.json';
 
 async function getDistrictComparison() {
   try {
-    // Get both districts with ALL data including finance
-    const [olentangy] = await db.select().from(schema.districts).where(eq(schema.districts.leaid, '3904676'));
-    const [dublin] = await db.select().from(schema.districts).where(eq(schema.districts.leaid, '3904702'));
+    // Get both districts with ALL data including new report card columns
+    const districts = await db.select().from(schema.districts);
+
+    const olentangy = districts.find(d => d.leaid === '3904676');
+    const dublin = districts.find(d => d.leaid === '3904702');
+
+    if (!olentangy || !dublin) {
+      return null;
+    }
 
     // Count schools for each district
-    const olentangySchools = await db.select({ count: count() })
-      .from(schema.schools)
-      .where(eq(schema.schools.leaid, '3904676'));
+    const olentangySchools = await db.select().from(schema.schools).where(eq(schema.schools.leaid, '3904676'));
+    const dublinSchools = await db.select().from(schema.schools).where(eq(schema.schools.leaid, '3904702'));
 
-    const dublinSchools = await db.select({ count: count() })
-      .from(schema.schools)
-      .where(eq(schema.schools.leaid, '3904702'));
+    // Load features from JSON
+    const olentangyFeatures = districtFeatures.districts.find(d => d.irn === '046763');
+    const dublinFeatures = districtFeatures.districts.find(d => d.irn === '047027');
 
     return {
       olentangy: {
         ...olentangy,
-        schoolCount: olentangySchools[0]?.count || 0,
+        schoolCount: olentangySchools.length,
+        features: olentangyFeatures,
       },
       dublin: {
         ...dublin,
-        schoolCount: dublinSchools[0]?.count || 0,
+        schoolCount: dublinSchools.length,
+        features: dublinFeatures,
       },
     };
   } catch (error) {
@@ -44,7 +53,7 @@ export default async function Home() {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-slate-900 mb-4">Data Not Available</h1>
           <p className="text-slate-600 mb-8">
-            Please run <code className="bg-slate-100 px-2 py-1 rounded">npm run seed-real</code> to populate the database.
+            Please run the data import scripts to populate the database.
           </p>
         </div>
       </div>
@@ -53,202 +62,266 @@ export default async function Home() {
 
   const { olentangy, dublin } = data;
 
+  // Calculate savings
+  const olentangyTax = 4440; // $600k home
+  const dublinTax = 5904; // $600k home
+  const annualSavings = dublinTax - olentangyTax;
+  const savingsOver18Years = annualSavings * 18;
+
   return (
     <HomePageWrapper>
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      {/* Hero Section */}
-      <section className="py-16 text-center">
-        <h1 className="text-5xl font-bold text-slate-900 mb-6 leading-tight">
-          Buying a home often means<br />choosing a school district.
-        </h1>
-        <p className="text-xl text-slate-600 mb-4 max-w-3xl mx-auto leading-relaxed">
-          But the data is scattered across multiple websites, outdated, and confusing.
-        </p>
-        <p className="text-xl text-slate-900 font-medium max-w-3xl mx-auto">
-          This web app brings official public school data into one clear, honest comparison.
-        </p>
-      </section>
+      {/* NEW Landing Hero */}
+      <NewLandingPage />
 
-      {/* Financial Comparison - THE GAME CHANGER */}
-      <section className="py-12">
-        <h2 className="text-3xl font-bold text-slate-900 mb-2 text-center">
-          The Real Question: Are Higher Taxes Worth It?
-        </h2>
-        <p className="text-slate-600 text-center mb-8 max-w-3xl mx-auto">
-          Both districts rely heavily on local property taxes. Here's what you're actually paying for.
-        </p>
+      {/* Comparison Section */}
+      <section id="comparison" className="py-16 px-4 bg-slate-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-slate-900 mb-4">
+              The Real Comparison: Olentangy vs Dublin
+            </h2>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              Both are excellent 5-star districts. But are you getting the best value for your money?
+              Here's what the official data shows.
+            </p>
+          </div>
 
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
-          {/* Olentangy Column */}
-          <div className="space-y-10">
-            <FlipCard district={olentangy} color="blue" />
+          {/* Side-by-Side Cards */}
+          <div className="grid md:grid-cols-2 gap-8 mb-16">
+            {/* Olentangy Column */}
+            <div className="space-y-10">
+              <EnhancedFlipCard district={olentangy} color="blue" />
 
-            {/* Olentangy Bottom Line */}
-            <div className="bg-slate-900 text-white rounded-lg p-6">
-              <h3 className="text-lg font-bold mb-3 text-blue-400">The Bottom Line: Olentangy</h3>
-              <div className="text-sm space-y-3">
-                <p className="text-slate-300">
-                  Spends <span className="font-bold text-white">$16,456 per student</span> <span className="text-xs text-slate-400">(FY 2021-22)</span> with high efficiency.
-                  Still well-funded, competitive spending levels.
-                </p>
-                <p className="text-slate-300">
-                  Property tax rate: <span className="font-bold text-white">~53.7 mills</span> <span className="text-xs text-slate-400">(2024)</span> in Delaware County.
-                  Lower tax burden while maintaining solid per-pupil investment.
-                </p>
-                <div className="pt-3 border-t border-slate-700">
-                  <p className="text-xs text-slate-400">
-                    <span className="font-semibold text-slate-300">Lower taxes, strong spending.</span> Great value if you prioritize tax savings while still getting quality education funding.
+              {/* Olentangy What Makes Us Different */}
+              {olentangy.features && (
+                <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
+                  <h3 className="text-lg font-bold mb-4 text-blue-600">
+                    🔵 What Makes Olentangy Different
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="text-sm font-semibold text-slate-700 mb-2">Strengths:</div>
+                      <ul className="text-sm text-slate-600 space-y-1">
+                        {olentangy.features.strengths.map((strength: string, i: number) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span className="text-green-500 mt-0.5">✓</span>
+                            <span>{strength}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-slate-700 mb-2">Special Programs:</div>
+                      <div className="flex flex-wrap gap-2">
+                        {olentangy.features.special_programs.slice(0, 4).map((program: string, i: number) => (
+                          <span key={i} className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                            {program}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="text-xs text-slate-500 pt-2 border-t">
+                      Commute to downtown: {olentangy.features.commute_to_downtown}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Olentangy Bottom Line */}
+              <div className="bg-slate-900 text-white rounded-lg p-6">
+                <h3 className="text-lg font-bold mb-3 text-blue-400">The Bottom Line: Olentangy</h3>
+                <div className="text-sm space-y-3">
+                  <p className="text-slate-300">
+                    ⭐⭐⭐⭐⭐ <span className="font-bold text-white">5-star rating</span> - Largest 5-star district in Ohio
+                  </p>
+                  <p className="text-slate-300">
+                    📊 <span className="font-bold text-white">94.9% achievement score</span>, 96.2% graduation rate
+                  </p>
+                  <p className="text-slate-300">
+                    💰 <span className="font-bold text-white">$4,440/year</span> property tax ($600k home)
+                  </p>
+                  <p className="text-green-400 font-semibold pt-3 border-t border-slate-700">
+                    ✅ BEST VALUE: Same quality, lower taxes!
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Dublin Column */}
+            <div className="space-y-10">
+              <EnhancedFlipCard district={dublin} color="green" />
+
+              {/* Dublin What Makes Us Different */}
+              {dublin.features && (
+                <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
+                  <h3 className="text-lg font-bold mb-4 text-green-600">
+                    🟢 What Makes Dublin Different
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="text-sm font-semibold text-slate-700 mb-2">Strengths:</div>
+                      <ul className="text-sm text-slate-600 space-y-1">
+                        {dublin.features.strengths.map((strength: string, i: number) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span className="text-green-500 mt-0.5">✓</span>
+                            <span>{strength}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-slate-700 mb-2">Special Programs:</div>
+                      <div className="flex flex-wrap gap-2">
+                        {dublin.features.special_programs.slice(0, 4).map((program: string, i: number) => (
+                          <span key={i} className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                            {program}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="text-xs text-slate-500 pt-2 border-t">
+                      Commute to downtown: {dublin.features.commute_to_downtown}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Dublin Bottom Line */}
+              <div className="bg-slate-900 text-white rounded-lg p-6">
+                <h3 className="text-lg font-bold mb-3 text-green-400">The Bottom Line: Dublin</h3>
+                <div className="text-sm space-y-3">
+                  <p className="text-slate-300">
+                    ⭐⭐⭐⭐⭐ <span className="font-bold text-white">5-star rating</span> - Established reputation
+                  </p>
+                  <p className="text-slate-300">
+                    📊 <span className="font-bold text-white">89.4% achievement score</span>, 95.8% graduation rate
+                  </p>
+                  <p className="text-slate-300">
+                    💰 <span className="font-bold text-white">$5,904/year</span> property tax ($600k home)
+                  </p>
+                  <p className="text-slate-400 pt-3 border-t border-slate-700">
+                    Excellent quality, but $1,464/year more than Olentangy
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Dublin Column */}
-          <div className="space-y-10">
-            <FlipCard district={dublin} color="green" />
+          {/* VALUE COMPARISON - THE GAME CHANGER! */}
+          <div className="bg-gradient-to-br from-green-600 to-emerald-700 text-white rounded-2xl p-8 md:p-12 shadow-xl">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                💰 The Aha! Moment
+              </h2>
+              <p className="text-xl text-green-100">
+                Both districts have the SAME 5-star rating. So what's the real difference?
+              </p>
+            </div>
 
-            {/* Dublin Bottom Line */}
-            <div className="bg-slate-900 text-white rounded-lg p-6">
-              <h3 className="text-lg font-bold mb-3 text-green-400">The Bottom Line: Dublin</h3>
-              <div className="text-sm space-y-3">
-                <p className="text-slate-300">
-                  Spends <span className="font-bold text-white">$17,437 per student</span> <span className="text-xs text-slate-400">(FY 2021-22)</span> (6% more than Olentangy).
-                  That's nearly $1,000 more per student annually.
-                </p>
-                <p className="text-slate-300">
-                  Property tax rate: <span className="font-bold text-white">~60-65 mills</span> <span className="text-xs text-slate-400">(2024)</span> in Franklin County.
-                  You'll pay more in taxes for potentially better-funded schools.
-                </p>
-                <div className="pt-3 border-t border-slate-700">
-                  <p className="text-xs text-slate-400">
-                    <span className="font-semibold text-slate-300">Premium spending, premium taxes.</span> Higher investment per student—check test scores to see if it translates to better outcomes.
-                  </p>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 mb-6">
+              <div className="grid md:grid-cols-2 gap-8 mb-6">
+                <div className="text-center">
+                  <div className="text-sm text-green-200 mb-2">Olentangy (5 stars)</div>
+                  <div className="text-5xl font-bold mb-2">${olentangyTax.toLocaleString()}</div>
+                  <div className="text-sm text-green-200">annual property tax</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-sm text-green-200 mb-2">Dublin (5 stars)</div>
+                  <div className="text-5xl font-bold mb-2">${dublinTax.toLocaleString()}</div>
+                  <div className="text-sm text-green-200">annual property tax</div>
+                </div>
+              </div>
+
+              <div className="text-center pt-6 border-t border-white/20">
+                <div className="text-sm text-green-200 mb-2">Your Savings with Olentangy:</div>
+                <div className="text-6xl font-bold mb-3 text-yellow-300">
+                  ${annualSavings.toLocaleString()}
+                </div>
+                <div className="text-xl text-green-100">per year</div>
+              </div>
+            </div>
+
+            <div className="bg-yellow-400 text-slate-900 rounded-xl p-6 mb-6">
+              <div className="text-center">
+                <div className="text-lg font-semibold mb-2">
+                  Over 18 years of K-12 education:
+                </div>
+                <div className="text-5xl font-bold mb-2">
+                  ${savingsOver18Years.toLocaleString()}
+                </div>
+                <div className="text-sm">
+                  That's enough for 4 years of college tuition at Ohio State!
                 </div>
               </div>
             </div>
+
+            <div className="text-center text-green-100">
+              <p className="text-lg mb-6">
+                Same 5-star quality. Lower taxes. That's the power of knowing the data.
+              </p>
+              <p className="text-sm">
+                * Based on $600k home price, Delaware County (Olentangy) vs Franklin County (Dublin) property tax rates
+              </p>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Comparison Note */}
-        <div className="mt-12 p-6 bg-blue-50 rounded-lg border border-blue-200">
-          <p className="text-sm text-slate-700 text-center">
-            <span className="font-semibold text-slate-900">Both districts are heavily funded by YOUR property taxes</span> (79-82% local funding).
-            The real question: Does Dublin's extra $1,000 per student translate to better outcomes for your kids?
-            Check graduation rates, test scores, and college placement data to decide if the tax premium is worth it.
-          </p>
-        </div>
+      {/* Coming Soon Section */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-slate-900 mb-4">🚀 Coming Soon</h2>
+            <p className="text-xl text-slate-600">
+              We're expanding to help even more Central Ohio families
+            </p>
+          </div>
 
-        {/* Coming Soon */}
-        <div className="mt-8 p-8 bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-lg">
-          <h3 className="text-2xl font-bold mb-4 text-center">🚀 Coming Soon</h3>
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <div>
-              <h4 className="font-semibold mb-2 text-blue-300">More Districts</h4>
-              <ul className="text-sm text-slate-300 space-y-1">
-                <li>• Westerville City Schools</li>
-                <li>• Worthington City Schools</li>
-                <li>• Upper Arlington City Schools</li>
-                <li>• New Albany-Plain Local Schools</li>
-                <li>• Hilliard City Schools</li>
-                <li>• Gahanna-Jefferson Schools</li>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-xl border border-blue-200">
+              <h3 className="text-2xl font-bold mb-4 text-blue-900">More Districts</h3>
+              <ul className="space-y-2 text-slate-700">
+                <li className="flex items-center gap-2">
+                  <span className="text-blue-500">•</span> Worthington City Schools
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-blue-500">•</span> Upper Arlington City Schools
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-blue-500">•</span> Hilliard City Schools
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-blue-500">•</span> Westerville City Schools
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-blue-500">•</span> New Albany-Plain Local
+                </li>
               </ul>
             </div>
-            <div>
-              <h4 className="font-semibold mb-2 text-green-300">More Data</h4>
-              <ul className="text-sm text-slate-300 space-y-1">
-                <li>• Ohio Report Card grades (A-F)</li>
-                <li>• Graduation rates</li>
-                <li>• College enrollment rates</li>
-                <li>• Student-teacher ratios</li>
-                <li>• Test scores & performance index</li>
-                <li>• Special education services</li>
+
+            <div className="bg-gradient-to-br from-green-50 to-green-100 p-8 rounded-xl border border-green-200">
+              <h3 className="text-2xl font-bold mb-4 text-green-900">More Data & Tools</h3>
+              <ul className="space-y-2 text-slate-700">
+                <li className="flex items-center gap-2">
+                  <span className="text-green-500">•</span> Individual school pages
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-green-500">•</span> Charter school comparisons
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-green-500">•</span> Private school cost analysis
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-green-500">•</span> Personalized school matcher
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-green-500">•</span> Neighborhood boundary maps
+                </li>
               </ul>
             </div>
           </div>
-          <p className="text-xs text-slate-400 text-center mt-6">
-            We're actively working on adding more districts and comprehensive school performance data. Check back soon!
-          </p>
         </div>
       </section>
-
-      {/* Why This Matters Section */}
-      <section className="py-16 bg-slate-50 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-slate-900 mb-8 text-center">
-            What makes this different?
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="font-semibold text-slate-900 mb-2">Official Data Only</h3>
-              <p className="text-sm text-slate-600">
-                NCES Common Core of Data. No opinions, no ratings from us.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="font-semibold text-slate-900 mb-2">Real School Names</h3>
-              <p className="text-sm text-slate-600">
-                Actual schools from federal education database, not mock data.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="font-semibold text-slate-900 mb-2">Clear Limitations</h3>
-              <p className="text-sm text-slate-600">
-                This is V1. More metrics coming as we parse additional datasets.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Data Sources Section */}
-      <section className="py-12">
-        <div className="bg-white rounded-lg border border-slate-200 p-8">
-          <h3 className="text-xl font-bold text-slate-900 mb-4">Data Sources</h3>
-          <div className="grid md:grid-cols-2 gap-6 text-sm">
-            <div>
-              <div className="font-semibold text-slate-900 mb-2">School Directory & Enrollment</div>
-              <p className="text-slate-600">
-                NCES Common Core of Data (CCD) 2023-24. Covers {olentangy.schoolCount + dublin.schoolCount} schools across both districts.
-              </p>
-            </div>
-            <div>
-              <div className="font-semibold text-slate-900 mb-2">Financial Data</div>
-              <p className="text-slate-600">
-                F-33 School District Finance Survey 2021-22. Revenue, expenditure, and per-pupil spending.
-              </p>
-            </div>
-            <div>
-              <div className="font-semibold text-slate-900 mb-2">Property Tax Estimates</div>
-              <p className="text-slate-600">
-                Delaware and Franklin County Auditor data. Effective millage rates as of 2024.
-              </p>
-            </div>
-            <div>
-              <div className="font-semibold text-slate-900 mb-2">What's Next</div>
-              <p className="text-slate-600">
-                Adding test scores, graduation rates, student-teacher ratios, and free/reduced lunch data.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
     </HomePageWrapper>
   );
 }

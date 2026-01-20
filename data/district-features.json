@@ -1,0 +1,86 @@
+{
+  "districts": [
+    {
+      "irn": "046763",
+      "name": "Olentangy Local School District",
+      "strengths": [
+        "Largest 5-star district in Ohio (20,000+ students)",
+        "Newer facilities - most schools built after 2000",
+        "Strong STEM and robotics programs",
+        "Award-winning athletics (state championships)",
+        "Ranked #1 in Ohio among districts over 10,000 students"
+      ],
+      "unique_features": [
+        "STEM Academy at Olentangy Academy",
+        "Teacher Academy program",
+        "Technology integration (1:1 devices)",
+        "3 high schools with different personalities",
+        "Partnership with local universities"
+      ],
+      "special_programs": [
+        "STEM Academy",
+        "Teacher Academy",
+        "Advanced Placement (AP)",
+        "Honors programs",
+        "Gifted & Talented",
+        "Robotics (FIRST Competition qualifier)"
+      ],
+      "awards": [
+        "5-star overall rating (3rd consecutive year, 2024)",
+        "5 stars in Achievement, Gap Closing, Graduation",
+        "72 students at International DECA conference (2024)",
+        "Robotics World Championships qualifier",
+        "Girls Wrestling State Title (2024)"
+      ],
+      "considerations": [
+        "Rapidly growing (adding schools frequently)",
+        "Spread across large geographic area",
+        "Less established than older districts",
+        "Some areas have longer commutes to Columbus"
+      ],
+      "commute_to_downtown": "25-30 minutes",
+      "last_updated": "2025-01-20"
+    },
+    {
+      "irn": "047027",
+      "name": "Dublin City Schools",
+      "strengths": [
+        "International Baccalaureate (IB) program at all 3 high schools",
+        "Nationally recognized fine & performing arts",
+        "Established reputation (older, stable district)",
+        "Closer proximity to Columbus downtown",
+        "Strong college preparation (90% of AP students score 3+)"
+      ],
+      "unique_features": [
+        "IB World School at Emerald Campus (591 students)",
+        "Fine & Performing Arts Seal for graduates",
+        "Global curriculum (aligned with 147 countries)",
+        "Coffman High School performing arts center",
+        "Community partnerships and internships"
+      ],
+      "special_programs": [
+        "International Baccalaureate (IB)",
+        "Advanced Placement (AP)",
+        "College Credit Plus (CCP) - 908 students",
+        "IB Visual Arts, Film, Theatre, Music",
+        "Gifted & Talented",
+        "STEM programs"
+      ],
+      "awards": [
+        "5-star overall rating on Ohio Report Card",
+        "90% of AP students score 3 or higher",
+        "26.1% of students earn college credit before graduation",
+        "84% of graduates earn local achievement seals",
+        "IB program recognized internationally"
+      ],
+      "considerations": [
+        "Higher property taxes (Franklin County)",
+        "Older facilities compared to newer districts",
+        "More competitive/rigorous academics",
+        "Can feel more crowded"
+      ],
+      "commute_to_downtown": "15-20 minutes",
+      "last_updated": "2025-01-20"
+    }
+  ]
+}
